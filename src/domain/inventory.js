@@ -11,6 +11,30 @@ export function createStore() {
         waitlists: new Map()
     };
 }
+// Ensuring the date is a valid one
+function isValidEventDate(value) {
+  if (typeof value !== "string" || !value.trim()) {
+    return false;
+  }
+
+  const datePart = value.slice(0, 10);
+  const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!dateOnlyPattern.test(datePart)) {
+    return false;
+  }
+
+  const [year, month, day] = datePart.split("-").map(Number);
+
+  const calendarDate = new Date(Date.UTC(year, month - 1, day));
+
+  const isRealDate =
+    calendarDate.getUTCFullYear() === year &&
+    calendarDate.getUTCMonth() === month - 1 &&
+    calendarDate.getUTCDate() === day;
+
+  return isRealDate && Number.isFinite(Date.parse(value));
+}
 
 // Creating an event
 export function createEvent(store, details) {
@@ -29,8 +53,8 @@ export function createEvent(store, details) {
     typeof city !== "string" || !city.trim() ||
     typeof venue !== "string" || !venue.trim() ||
     typeof date !== "string" || !date.trim() ||
-    Number.isNaN(Date.parse(date))
-  ) {
+    !isValidEventDate(date))
+   {
     throw new DomainError(
       "VALIDATION",
       "A valid title, city, venue, and date are required."
@@ -42,7 +66,8 @@ export function createEvent(store, details) {
     title: title.trim(),
     city: city.trim(),
     venue: venue.trim(),
-    date
+    date,
+    status: "draft",
   };
 
   store.events.set(event.id, event);
@@ -274,4 +299,93 @@ export function joinWaitlist(store, tierId, customerName, quantity) {
   queue.enqueue(entry);
 
   return entry;
+}
+
+// Publish an event so customers can see it.
+// Making it publicly available
+export function publishEvent(store, eventId) {
+  if (!store || !(store.events instanceof Map) || !(store.tiers instanceof Map)) {
+    throw new DomainError("VALIDATION", "A valid store is required.");
+  }
+
+  const event = store.events.get(eventId);
+
+  if (!event) {
+    throw new DomainError("NOT_FOUND", "Event not found.");
+  }
+
+  const eventTiers = [...store.tiers.values()].filter(
+    (tier) => tier.eventId === eventId
+  );
+
+  if (eventTiers.length === 0) {
+    throw new DomainError(
+      "INVALID_STATE",
+      "An event must have at least one ticket tier before publishing."
+    );
+  }
+
+  event.status = "published";
+
+  return event;
+}
+
+// Unpublish an event and return it to draft status.
+export function unpublishEvent(store, eventId) {
+  if (!store || !(store.events instanceof Map)) {
+    throw new DomainError("VALIDATION", "A valid store is required.");
+  }
+
+  const event = store.events.get(eventId);
+
+  if (!event) {
+    throw new DomainError("NOT_FOUND", "Event not found.");
+  }
+
+  event.status = "draft";
+
+  return event;
+}
+
+// published event summaries
+export function listEventSummaries(
+  store,
+  { publishedOnly = true } = {}
+) {
+  const events = [...store.events.values()];
+
+  const visibleEvents = publishedOnly
+    ? events.filter((event) => event.status === "published")
+    : events;
+
+  return visibleEvents.map((event) => {
+    const tiers = [...store.tiers.values()]
+      .filter((tier) => tier.eventId === event.id)
+      .map((tier) => ({
+        id: tier.id,
+        name: tier.name,
+        priceCents: tier.priceCents,
+        capacity: tier.capacity,
+        sold: tier.sold,
+        seatsLeft: tier.capacity - tier.sold,
+      }));
+
+    const prices = tiers.map((tier) => tier.priceCents);
+
+    return {
+      id: event.id,
+      title: event.title,
+      city: event.city,
+      venue: event.venue,
+      date: event.date,
+      status: event.status,
+      tiers,
+      cheapestPriceCents:
+        prices.length > 0 ? Math.min(...prices) : null,
+      totalSeatsLeft: tiers.reduce(
+        (total, tier) => total + tier.seatsLeft,
+        0
+      ),
+    };
+  });
 }
