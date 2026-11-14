@@ -54,3 +54,29 @@ Command used:
 - Applying domain validation and structured errors.
 - Writing automated tests using Node.js built-in tools.
 - Understanding test isolation and the Arrange–Act–Assert pattern.
+
+## Build 3 — Architecture, State Machine and Server Skeleton
+
+### AI Assistance
+- Used AI assistance to implement and understand the booking state machine, HTTP router, HTTP application handler, server configuration and server entry point.
+- Reviewed architectural separation between domain logic, HTTP handling and server startup.
+- Used AI-assisted debugging to identify and fix an undeclared `matchedRoute` variable in the HTTP application.
+
+### Implementation
+- Added explicit booking lifecycle transitions and invalid-transition protection.
+- Implemented a lightweight HTTP router supporting HTTP methods, paths and route parameters.
+- Implemented a Node.js HTTP application with JSON responses, request-body parsing, static-file serving and consistent error responses.
+- Added protection against path traversal outside the public directory.
+- Added server configuration and startup through `npm start`.
+- Added a public homepage and `/health` endpoint.
+
+### Testing
+- Added booking state-machine tests for permitted and prohibited transitions.
+- Added router tests for matching, parameters and HTTP methods.
+- Added HTTP application tests covering health checks, static files, unknown routes, invalid JSON, valid JSON, path traversal and internal error handling.
+- Verified the server through actual HTTP requests.
+
+### Outcome
+- All 59 project tests passed.
+- Server startup and HTTP health checks verified successfully.
+- Build 3 implementation completed.
