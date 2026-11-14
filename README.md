@@ -143,3 +143,46 @@ The project is being developed incrementally through defined builds.
 
 The project is actively under development. Features will be added,
 tested, and documented as each build is completed.
+
+
+## Build 3 — Architecture and Server Skeleton
+
+Build 3 introduces the application's architectural foundation and HTTP server.
+
+### Implemented
+- Layered architecture documented in `docs/architecture.md`.
+- Booking lifecycle state machine with transition validation.
+- Lightweight HTTP router supporting methods, paths and route parameters.
+- HTTP application handler using Node.js built-in `http`.
+- Static-file serving from `public/`.
+- Path traversal protection.
+- JSON request parsing and standardized error responses.
+- Server configuration through environment variables.
+- `/health` endpoint.
+- Basic public homepage.
+
+### Running the Application
+
+Start the server:
+
+```bash
+npm start
+```
+
+The server uses `PORT` from the environment when configured; otherwise, it uses the default port defined in `src/config.js`.
+
+Health check:
+
+```bash
+curl http://localhost:4000/health
+```
+
+### Testing
+
+Run the complete test suite:
+
+```bash
+npm test
+```
+
+Build 3 verification: **59 tests passing**.
