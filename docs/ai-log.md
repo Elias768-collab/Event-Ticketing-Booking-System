@@ -80,3 +80,31 @@ Command used:
 - All 59 project tests passed.
 - Server startup and HTTP health checks verified successfully.
 - Build 3 implementation completed.
+
+## Build 4 – Working REST API
+
+**Areas where AI assisted:**
+- Designing the in-memory repository and separating data access from business logic.
+- Implementing the event and booking services.
+- Implementing the mock payment gateway.
+- Connecting event and booking routes to the HTTP application.
+- Writing API-level tests using Node.js `node:test`.
+- Preparing curl examples for the REST API.
+
+**Implementation completed:**
+- Event creation, ticket tier creation and publishing.
+- Event search, filtering and sorting.
+- Booking creation with inventory reservation.
+- Mock payment processing for successful and declined payments.
+- Booking ownership verification.
+- Booking cancellation.
+- Consistent API error responses.
+
+**My review and learning:**
+I reviewed the generated implementation and tested the services and API behaviour. I learned how repositories, services and routes work together, how asynchronous operations are handled, and how HTTP status codes communicate API outcomes.
+
+I also used curl to test the API independently of the automated test suite.
+
+**Verification:** Automated and manual verification were performed. Final manual checks and test results should be recorded before merging Build 4.
+
+**Reflection:** This build helped me understand how to connect domain logic to a working REST API while keeping responsibilities separated across application layers.

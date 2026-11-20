@@ -182,6 +182,70 @@ export function bookTickets(store, tierId, quantity) {
   return booking;
 }
 
+
+/**
+ * Create a pending booking and reserve tickets for payment.
+ */
+export function createPendingBooking(store, tierId, quantity, userId) {
+  if (
+    !store ||
+    !(store.tiers instanceof Map) ||
+    !(store.bookings instanceof Map) ||
+    !(store.bookingsByReference instanceof Map)
+  ) {
+    throw new DomainError("VALIDATION", "A valid store is required.");
+  }
+
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
+    throw new DomainError(
+      "VALIDATION",
+      "Booking quantity must be between 1 and 10."
+    );
+  }
+
+  if (typeof userId !== "string" || !userId.trim()) {
+    throw new DomainError("VALIDATION", "A valid user ID is required.");
+  }
+
+  const tier = store.tiers.get(tierId);
+
+  if (!tier) {
+    throw new DomainError("NOT_FOUND", "Ticket tier not found.");
+  }
+
+  const available = tier.capacity - tier.sold;
+
+  if (available < quantity) {
+    throw new DomainError("SOLD_OUT", "Not enough tickets available.");
+  }
+
+  let reference;
+
+  do {
+    reference = newReference();
+  } while (store.bookingsByReference.has(reference));
+
+  const booking = {
+    id: newId(),
+    reference,
+    tierId,
+    userId: userId.trim(),
+    quantity,
+    amountCents: tier.priceCents * quantity,
+    status: "pending",
+    transactionId: null,
+  };
+
+  // Reserve tickets while payment is pending.
+  tier.sold += quantity;
+
+  store.bookings.set(booking.id, booking);
+  store.bookingsByReference.set(reference, booking.id);
+
+  return booking;
+}
+
+
 // Cancelling a booking
 export function cancelBooking(store, bookingId) {
   //  Validate the store.
