@@ -5,6 +5,12 @@ import { fileURLToPath } from "node:url";
 
 import { Router } from "./router.js";
 import { DomainError } from "../domain/errors.js";
+import { createMemoryRepository } from "../repositories/memory.js";
+import { createEventService } from "../services/eventService.js";
+import { createBookingService } from "../services/bookingService.js";
+import { createMockPaymentGateway } from "../lib/mockPaymentGateway.js";
+import { registerEventRoutes } from "../routes/eventRoutes.js";
+import { registerBookingRoutes } from "../routes/bookingRoutes.js";
 
 const DEFAULT_PUBLIC_DIR = fileURLToPath(
   new URL("../../public/", import.meta.url)
@@ -142,7 +148,18 @@ async function serveStaticFile(req, res, publicDir, pathname) {
 export function createApp({
   router = new Router(),
   publicDir = DEFAULT_PUBLIC_DIR,
+  repository = createMemoryRepository(),
+  paymentGateway = createMockPaymentGateway(),
 } = {}) {
+  const eventService = createEventService(repository);
+  const bookingService = createBookingService(
+    repository,
+    paymentGateway
+  );
+
+  registerEventRoutes(router, eventService);
+  registerBookingRoutes(router, bookingService);
+
   router.get("/health", () => ({
     status: 200,
     body: { status: "ok" },
@@ -175,10 +192,11 @@ export function createApp({
         const body = await readJsonBody(req);
 
         const result = await matchedRoute.handler({
-            req,
-            params: matchedRoute.params,
-            body,
-        });
+          req,
+          params: matchedRoute.params,
+          query: Object.fromEntries(url.searchParams.entries()),
+          body,
+        });;
 
         return sendJson(
             res,
@@ -204,9 +222,21 @@ export function createApp({
       });
     } catch (error) {
 
-      const statusCode = error.statusCode ||
-        (error instanceof DomainError ? 400 : 500);
-        
+      const domainStatusCodes = {
+        VALIDATION: 400,
+        NOT_FOUND: 404,
+        FORBIDDEN: 403,
+        SOLD_OUT: 409,
+        INVALID_TRANSITION: 409,
+        PAYMENT_DECLINED: 402,
+        PAYMENT_ERROR: 502,
+      };
+
+      const statusCode =
+        error.statusCode ||
+        (error instanceof DomainError
+          ? domainStatusCodes[error.code] ?? 400
+          : 500);
 
       sendJson(res, statusCode, {
         error: {

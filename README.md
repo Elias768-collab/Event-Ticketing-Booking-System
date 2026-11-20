@@ -186,3 +186,71 @@ npm test
 ```
 
 Build 3 verification: **59 tests passing**.
+
+## Build 4: Working REST API
+
+The system now exposes a REST API for managing events, ticket tiers and bookings.
+
+### Implemented Features
+
+- Create events and ticket tiers.
+- Publish events.
+- Search, filter and sort published events.
+- Create bookings and reserve ticket inventory.
+- Process payments using a mock payment gateway.
+- Handle successful and declined payments.
+- Restrict booking payments and cancellations to the booking owner.
+- Cancel pending bookings and release reserved inventory.
+- Return consistent JSON error responses.
+
+### API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/events` | Create an event |
+| POST | `/api/events/:id/tiers` | Add a ticket tier |
+| POST | `/api/events/:id/publish` | Publish an event |
+| GET | `/api/events` | Search and filter events |
+| POST | `/api/bookings` | Create a booking |
+| POST | `/api/bookings/:reference/pay` | Pay for a booking |
+| POST | `/api/bookings/:reference/cancel` | Cancel a pending booking |
+
+### Running the Application
+
+Start the server:
+
+```bash
+npm start
+```
+
+The server runs at:
+
+```text
+http://localhost:4000
+```
+
+Check the health endpoint:
+
+```bash
+curl http://localhost:4000/health
+```
+
+### Running Tests
+
+Run the automated test suite:
+
+```bash
+npm test
+```
+
+### API Documentation
+
+See [`docs/api-examples.md`](docs/api-examples.md) for request examples and instructions for testing the endpoints with curl.
+
+### Current Implementation
+
+The application currently uses an in-memory repository. Data is stored while the server process is running and resets when the server restarts.
+
+Payments are simulated through a mock payment gateway. No real payment provider or card details are involved.
+
+Booking ownership is currently identified through the `x-user-id` request header. Authentication will be addressed in a later build.
