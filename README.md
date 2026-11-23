@@ -1,9 +1,10 @@
-
 # Event Ticketing and Booking System
 
 A backend-focused event ticketing and booking system built with JavaScript and Node.js.
 
-The system provides core functionality for creating events, managing ticket inventory, publishing events, searching event listings, booking tickets, cancelling bookings and managing customer waitlists.
+The system provides functionality for creating and managing events, publishing event listings, managing ticket inventory, searching events, booking tickets, processing mock payments, cancelling bookings and managing customer waitlists.
+
+The project is being developed incrementally as a backend engineering capstone, with emphasis on data structures, algorithms, software architecture, database operations, concurrency and automated testing.
 
 ## Project Objectives
 
@@ -13,8 +14,11 @@ The project demonstrates practical backend development concepts, including:
 - Inventory and booking management.
 - Input validation and error handling.
 - Event searching, filtering and sorting.
-- Automated testing.
-- Efficient data lookup using JavaScript Maps.
+- REST API development.
+- Repository and service-layer architecture.
+- Relational database design and SQL.
+- Transaction management and concurrency control.
+- Automated testing and regression prevention.
 
 ## Current Features
 
@@ -23,18 +27,23 @@ The project demonstrates practical backend development concepts, including:
 - Maintain draft and published event statuses.
 - Require ticket tiers before publishing.
 - Generate event summaries.
+- Store event records persistently in SQLite.
 
 ### Ticket Inventory
 - Create ticket tiers with prices and capacities.
 - Track tickets sold and remaining inventory.
 - Prevent bookings when inventory is insufficient.
+- Use database constraints to protect inventory integrity.
+- Reserve tickets through atomic SQL operations.
 
 ### Booking Management
 - Book between 1 and 10 tickets per booking.
 - Generate unique booking references.
 - Find bookings using their references.
-- Cancel bookings and restore available inventory.
+- Cancel pending bookings and restore available inventory.
 - Prevent duplicate cancellation.
+- Process successful and declined payments using a mock payment gateway.
+- Enforce booking ownership checks.
 
 ### Waitlist Management
 - Allow customers to join a ticket-tier waitlist.
@@ -43,47 +52,92 @@ The project demonstrates practical backend development concepts, including:
 ### Event Discovery
 - Search by event title and venue.
 - Filter by city, date, ticket price and availability.
-- Sort by date, ticket price and available seats.
+- Sort events by date, ticket price and available seats.
 - Use stable merge sort without modifying the original data.
+
+### Database and Inventory Protection
+- Persist application data using SQLite and Node.js's built-in `node:sqlite` module.
+- Define primary keys, foreign keys, unique constraints and check constraints.
+- Use parameterised SQL queries.
+- Use transactions for booking inventory operations.
+- Prevent overselling when multiple customers attempt to reserve the last available ticket.
+- Provide a database seed script that skips seeding when event data already exists.
 
 ## Technology Stack
 
 - JavaScript (ES Modules)
 - Node.js
-- Node.js built-in test runner
+- Node.js built-in HTTP module
+- Node.js built-in SQLite module (`node:sqlite`)
+- SQLite
+- Node.js built-in test runner (`node:test`)
 - Git and GitHub
+
+No external npm dependencies are currently required.
 
 ## Project Structure
 
 ```text
 event-ticketing-booking-system/
 ├── docs/
+│   ├── PRD.md
+│   ├── architecture.md
+│   ├── user-stories.md
+│   ├── milestones.md
 │   ├── ai-log.md
-│   └── build-2.md
+│   └── api-examples.md
+├── public/
+│   └── index.html
 ├── scripts/
 │   ├── benchmark-lookup.js
-│   └── demo.js
+│   ├── demo.js
+│   ├── seed.js
+│   └── oversell-demo.js
 ├── src/
-│   └── domain/
-│       ├── errors.js
-│       ├── eventSearch.js
-│       ├── ids.js
-│       ├── inventory.js
-│       ├── sorting.js
-│       └── waitListQueue.js
+│   ├── config.js
+│   ├── db/
+│   │   ├── connection.js
+│   │   └── schema.sql
+│   ├── domain/
+│   │   ├── bookingStateMachine.js
+│   │   ├── errors.js
+│   │   ├── eventSearch.js
+│   │   ├── ids.js
+│   │   ├── inventory.js
+│   │   ├── sorting.js
+│   │   └── waitListQueue.js
+│   ├── http/
+│   │   ├── app.js
+│   │   └── router.js
+│   ├── lib/
+│   │   └── mockPaymentGateway.js
+│   ├── repositories/
+│   │   ├── memory.js
+│   │   └── sqlite.js
+│   ├── routes/
+│   │   ├── bookingRoutes.js
+│   │   └── eventRoutes.js
+│   ├── services/
+│   │   ├── bookingService.js
+│   │   └── eventService.js
+│   └── server.js
 ├── test/
-│   ├── eventSearch.test.js
-│   ├── inventory.test.js
-│   └── sorting.test.js
+│   ├── api.test.js
+│   ├── bookingService.test.js
+│   ├── oversell.test.js
+│   └── ...
+├── .gitignore
 ├── package.json
 └── README.md
 ```
+
+The SQLite database is created under `data/` at runtime. The database directory is excluded from Git so local database files are not committed.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js installed.
+- Node.js installed (Node.js v24 or a compatible version supporting `node:sqlite`).
 - Git installed.
 
 ### Installation
@@ -100,6 +154,36 @@ Navigate into the project:
 cd Event-Ticketing-Booking-System
 ```
 
+### Seed the Database
+
+Run:
+
+```bash
+npm run seed
+```
+
+The seed script creates sample event data when the database does not already contain events. If event data already exists, seeding is skipped to avoid duplicates.
+
+### Start the Application
+
+```bash
+npm start
+```
+
+The server runs at:
+
+```text
+http://localhost:4000
+```
+
+The port can be configured through the `PORT` environment variable.
+
+### Health Check
+
+```bash
+curl http://localhost:4000/health
+```
+
 ### Run the Demo
 
 ```bash
@@ -112,98 +196,15 @@ npm run demo
 npm test
 ```
 
-## Testing
-
-The project uses Node.js built-in testing tools:
-
-- `node:test`
-- `node:assert/strict`
-
-The current automated test suite covers sorting, event search, event creation, ticket tiers, publishing, booking and cancellation.
-
-## Development Approach
-
-The project is being developed incrementally through defined builds and milestones.
-
-Each build introduces specific functionality, followed by implementation reviews, testing and documentation.
-
-## Project Status
-
-The project is being developed incrementally through defined builds.
-
-- **Build 1 – Core Inventory and Booking Logic:** Completed.
-  Implemented event and ticket-tier management, booking creation and cancellation,
-  booking-reference lookup, and the waitlist queue.
-
-- **Build 2 – Event Search, Sorting and Testing:** Implementation completed.
-  Added event publishing and unpublishing, event summaries, search and filtering,
-  stable merge sorting, and automated tests using Node.js's built-in test runner.
-
-- **Future Builds:** Pending implementation.
-
-The project is actively under development. Features will be added,
-tested, and documented as each build is completed.
-
-
-## Build 3 — Architecture and Server Skeleton
-
-Build 3 introduces the application's architectural foundation and HTTP server.
-
-### Implemented
-- Layered architecture documented in `docs/architecture.md`.
-- Booking lifecycle state machine with transition validation.
-- Lightweight HTTP router supporting methods, paths and route parameters.
-- HTTP application handler using Node.js built-in `http`.
-- Static-file serving from `public/`.
-- Path traversal protection.
-- JSON request parsing and standardized error responses.
-- Server configuration through environment variables.
-- `/health` endpoint.
-- Basic public homepage.
-
-### Running the Application
-
-Start the server:
+### Run the Overselling Demonstration
 
 ```bash
-npm start
+npm run oversell
 ```
 
-The server uses `PORT` from the environment when configured; otherwise, it uses the default port defined in `src/config.js`.
+This demonstration creates a ticket tier with one available seat and sends 50 simultaneous booking attempts. The expected result is one successful booking and 49 `SOLD_OUT` responses.
 
-Health check:
-
-```bash
-curl http://localhost:4000/health
-```
-
-### Testing
-
-Run the complete test suite:
-
-```bash
-npm test
-```
-
-Build 3 verification: **59 tests passing**.
-
-## Build 4: Working REST API
-
-The system now exposes a REST API for managing events, ticket tiers and bookings.
-
-### Implemented Features
-
-- Create events and ticket tiers.
-- Publish events.
-- Search, filter and sort published events.
-- Create bookings and reserve ticket inventory.
-- Process payments using a mock payment gateway.
-- Handle successful and declined payments.
-- Restrict booking payments and cancellations to the booking owner.
-- Cancel pending bookings and release reserved inventory.
-- Return consistent JSON error responses.
-
-### API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -215,42 +216,76 @@ The system now exposes a REST API for managing events, ticket tiers and bookings
 | POST | `/api/bookings/:reference/pay` | Pay for a booking |
 | POST | `/api/bookings/:reference/cancel` | Cancel a pending booking |
 
-### Running the Application
-
-Start the server:
-
-```bash
-npm start
-```
-
-The server runs at:
-
-```text
-http://localhost:4000
-```
-
-Check the health endpoint:
-
-```bash
-curl http://localhost:4000/health
-```
-
-### Running Tests
-
-Run the automated test suite:
-
-```bash
-npm test
-```
-
-### API Documentation
-
 See [`docs/api-examples.md`](docs/api-examples.md) for request examples and instructions for testing the endpoints with curl.
 
-### Current Implementation
+## Testing
 
-The application currently uses an in-memory repository. Data is stored while the server process is running and resets when the server restarts.
+The project uses Node.js built-in testing tools:
 
-Payments are simulated through a mock payment gateway. No real payment provider or card details are involved.
+- `node:test`
+- `node:assert/strict`
 
-Booking ownership is currently identified through the `x-user-id` request header. Authentication will be addressed in a later build.
+The automated test suite covers:
+
+- Event creation and validation.
+- Ticket-tier creation and inventory management.
+- Event publishing and unpublishing.
+- Event searching, filtering and sorting.
+- Booking creation, payment and cancellation.
+- Booking state transitions.
+- HTTP routing and application behaviour.
+- SQLite inventory reservation.
+- Concurrent booking attempts and overselling prevention.
+
+**Latest verification: 72 tests passing, 0 failures.**
+
+## Development Approach
+
+The project is being developed incrementally through defined builds and milestones.
+
+Each build introduces specific functionality, followed by implementation reviews, testing and documentation.
+
+The development process also involves reviewing AI-assisted suggestions, troubleshooting implementation issues and verifying behaviour through automated tests and manual API requests.
+
+## Project Status
+
+### Build 1 – Core Inventory and Booking Logic
+**Completed.**
+
+Implemented event and ticket-tier management, booking creation and cancellation, booking-reference lookup, and the waitlist queue.
+
+### Build 2 – Event Search, Sorting and Testing
+**Completed.**
+
+Added event publishing and unpublishing, event summaries, search and filtering, stable merge sorting, and automated tests.
+
+### Build 3 – Architecture and Server Skeleton
+**Completed.**
+
+Introduced layered architecture, booking lifecycle validation, a lightweight HTTP router, the HTTP application handler, static-file serving, JSON error handling and the health endpoint.
+
+### Build 4 – Working REST API
+**Completed.**
+
+Implemented the in-memory repository, event and booking services, REST API routes, mock payment processing, booking ownership checks and API-level tests.
+
+### Build 5 – SQLite and the Overselling Fix
+**Implementation and core verification completed.**
+
+Introduced persistent SQLite storage using `node:sqlite`, relational database constraints, a SQLite repository, parameterised SQL queries and transaction-based inventory reservation.
+
+The overselling demonstration and regression test verified that, with one ticket remaining and 50 simultaneous booking attempts, exactly one booking succeeds while 49 receive `SOLD_OUT`.
+
+Data persistence was also manually verified across a server restart.
+
+The seed script has been implemented with protection against duplicate seeding.
+
+Further builds will extend the system according to the project milestones.
+
+## Important Implementation Notes
+
+- The production server uses the SQLite repository.
+- The in-memory repository remains available for isolated application tests.
+- Payments are simulated through a mock payment gateway. No real payment provider or card details are involved.
+- Booking ownership is currently identified through the `x-user-id` request header. Full authentication is a separate development concern.
+- SQLite database files are generated locally and are not committed to the repository.
