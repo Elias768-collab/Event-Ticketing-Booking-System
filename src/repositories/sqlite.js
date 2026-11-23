@@ -349,7 +349,7 @@ export function createSQLiteRepository(db) {
                 throw error;
             }
         },
-
+  
         async cancelPendingBooking(bookingId) {
             const booking = getBookingById(bookingId);
 
