@@ -8,6 +8,8 @@
     "demo": "node scripts/demo.js",
     "benchmark": "node scripts/benchmark-lookup.js",
     "start": "node src/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "oversell": "node scripts/oversell-demo.js",
+    "seed": "node scripts/seed.js"
   }
 }
