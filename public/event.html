@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="description"
+    content="View event details, choose tickets and complete your booking."
+  >
+
+  <title>Event Details | VenueLink</title>
+
+  <link rel="stylesheet" href="./css/styles.css">
+
+  <script type="module" src="./js/pages/event.js"></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="./index.html">
+      <span class="brand-mark">V</span>
+      <span>VenueLink</span>
+    </a>
+
+    <nav aria-label="Main navigation">
+      <a href="./index.html">Browse events</a>
+    </nav>
+  </header>
+
+  <main class="event-page">
+    <a class="back-link" href="./index.html">
+      &larr; Back to events
+    </a>
+
+    <!-- JavaScript inserts the selected event and its ticket tiers here. -->
+    <section id="event-content" aria-live="polite">
+      <p>Loading event details...</p>
+    </section>
+
+    <!-- This section becomes visible after a successful reservation. -->
+    <section
+      id="checkout-panel"
+      class="checkout-panel"
+      aria-labelledby="checkout-heading"
+      hidden
+    >
+      <h2 id="checkout-heading">Complete your booking</h2>
+
+      <div id="booking-summary"></div>
+
+      <p class="countdown">
+        Time remaining:
+        <strong id="countdown">10:00</strong>
+      </p>
+
+      <p id="hold-message" role="status">
+        Your tickets are being held temporarily.
+        </p>
+
+        <!-- The form allows JavaScript to handle the payment submission. -->
+        <form id="payment-form">
+        <button id="pay-button" class="primary-button" type="submit">
+            Pay now
+        </button>
+        </form>
+
+        <p id="payment-message" role="alert" aria-live="polite"></p>
+  </main>
+
+  <footer class="site-footer">
+    <p>VenueLink — Discover and book events.</p>
+  </footer>
+</body>
+</html>

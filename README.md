@@ -282,6 +282,27 @@ The seed script has been implemented with protection against duplicate seeding.
 
 Further builds will extend the system according to the project milestones.
 
+### Build 6 – Frontend Website
+**Frontend implementation completed; backend integration pending.**
+
+Implemented the VenueLink event discovery and ticket booking website using plain HTML, CSS and browser JavaScript ES modules, without a frontend framework or build tool.
+
+The frontend includes:
+
+- Event listing and navigation.
+- Event search and filtering by city.
+- Maximum ticket price filtering and event sorting.
+- Event details and ticket-tier selection.
+- Quantity validation, including a maximum of 10 tickets per booking.
+- Sold-out ticket handling.
+- Booking summary and checkout interface.
+- Mock payment processing with successful and declined payment outcomes.
+- Local Storage persistence for mock events, inventory and bookings.
+
+The mock frontend currently operates independently of the production SQLite-backed API. Connecting the website to the existing backend and improving pending-booking recovery are planned for Build 7.
+
+The existing backend regression suite remains green, with 72 tests passing and 0 failures.
+
 ## Important Implementation Notes
 
 - The production server uses the SQLite repository.
