@@ -205,3 +205,18 @@ This build also introduced me to persistent database integration and gave me pra
 Throughout the project, AI assistance was used as a development and learning aid for understanding requirements, exploring implementation approaches, troubleshooting errors and reviewing technical concepts.
 
 The implementation was integrated and verified through local execution, automated tests and manual API requests. The objective has been to understand the decisions behind the code rather than simply copy generated solutions.
+
+### Build 6 – Frontend Website
+
+- **AI assistance:** Used AI guidance to structure the frontend, implement reusable DOM utilities, connect page modules to a mock API layer, and troubleshoot booking and payment behaviour.
+- **Purpose:** Build a functional event discovery and ticket booking interface without introducing a frontend framework or build step.
+- **Implementation:** Added `public/index.html`, `public/event.html`, `public/css/styles.css`, and JavaScript modules under `public/js/` for UI utilities, mock data, API abstraction, event discovery and event details.
+- **Key features:** Event search, city and price filtering, sorting, ticket selection, quantity validation, booking summaries, countdown display and mock payment processing.
+- **Persistence:** Used browser Local Storage to persist mock event inventory and booking records across page refreshes.
+- **Payment behaviour:** Verified that declined payments leave bookings pending and that successful payment updates the existing booking. The retry interface still requires further verification, particularly when returning to a page after a reload.
+- **My contribution:** Implemented and tested the frontend, investigated inventory persistence and payment behaviour, and verified the existing backend test suite.
+- **Verification:** All 72 existing automated backend tests passed, with 0 failures.
+
+**Known limitation:** The frontend currently uses mock data rather than the production SQLite-backed API. The active booking reference is held in page memory, so pending-booking recovery after a page reload is not yet implemented.
+
+**Next step:** Build 7 will integrate the frontend with the existing REST API and address pending-booking recovery.
